@@ -1,1 +1,0 @@
-# foxsocial-package-bundler

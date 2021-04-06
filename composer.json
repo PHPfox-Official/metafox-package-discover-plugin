@@ -1,0 +1,26 @@
+{
+    "name": "fox5/package-bundler-plugin",
+    "type": "composer-plugin",
+    "version": "0.1.0",
+    "description": "Bundle multiple packages into root package",
+    "require": {
+        "php": ">=7.2.0",
+        "composer-plugin-api": "^2.0"
+    },
+    "require-dev": {
+        "composer/composer": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fox5\\PackageBundlerPlugin\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Fox5\\PackageBundlerPlugin\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "class": "Fox5\\PackageBundlerPlugin\\Bundler"
+    }
+}
