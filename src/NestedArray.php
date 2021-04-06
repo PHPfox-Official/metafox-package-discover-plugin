@@ -1,20 +1,8 @@
 <?php
-/**
- * This file is part of the Composer Merge plugin.
- *
- * Copyright (C) 2015 Bryan Davis, Wikimedia Foundation, and contributors
- *
- * This software may be modified and distributed under the terms of the MIT
- * license. See the LICENSE file for details.
- */
 
 namespace Fox5\PackageBundlerPlugin;
 
-/**
- * Adapted from
- * http://cgit.drupalcode.org/drupal/tree/core/lib/Drupal/Component/Utility/NestedArray.php
- * @ f86a4d650d5af0b82a3981e09977055fa63f6f2e
- */
+
 class NestedArray
 {
 

@@ -1,22 +1,10 @@
 <?php
-/**
- * This file is part of the Composer Merge plugin.
- *
- * Copyright (C) 2015 Bryan Davis, Wikimedia Foundation, and contributors
- *
- * This software may be modified and distributed under the terms of the MIT
- * license. See the LICENSE file for details.
- */
 
 namespace Fox5\PackageBundlerPlugin;
 
 use Composer\Package\BasePackage;
 use Composer\Package\Version\VersionParser;
 
-/**
- * Adapted from Composer's RootPackageLoader::extractStabilityFlags
- * @author Bryan Davis <bd808@bd808.com>
- */
 class StabilityFlags
 {
 
@@ -36,24 +24,25 @@ class StabilityFlags
     protected $explicitStabilityRe;
 
     /**
-     * @param array $stabilityFlags Current package name => stability mappings
-     * @param int|string $minimumStability Current default minimum stability
+     * @param  array       $stabilityFlags    Current package name => stability mappings
+     * @param  int|string  $minimumStability  Current default minimum stability
      */
     public function __construct(
         array $stabilityFlags = [],
         $minimumStability = BasePackage::STABILITY_STABLE
     ) {
         $this->stabilityFlags = $stabilityFlags;
-        $this->minimumStability = $this->getStabilityInt((string)$minimumStability);
-        $this->explicitStabilityRe = '/^[^@]*?@(' .
-            implode('|', array_keys(BasePackage::$stabilities)) .
+        $this->minimumStability = $this->getStabilityInt((string) $minimumStability);
+        $this->explicitStabilityRe = '/^[^@]*?@('.
+            implode('|', array_keys(BasePackage::$stabilities)).
             ')$/i';
     }
 
     /**
      * Get the stability value for a given string.
      *
-     * @param string $name Stability name
+     * @param  string  $name  Stability name
+     *
      * @return int Stability value
      */
     protected function getStabilityInt($name)
@@ -66,7 +55,8 @@ class StabilityFlags
      * Extract and merge stability flags from the given collection of
      * requires with another collection of stability flags.
      *
-     * @param array $requires New package name => link mappings
+     * @param  array  $requires  New package name => link mappings
+     *
      * @return array Unified package name => stability mappings
      */
     public function extractAll(array $requires)
@@ -96,7 +86,8 @@ class StabilityFlags
      * Extract the most unstable explicit stability (eg '@dev') from a version
      * specification.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return int|null Stability or null if no explict stability found
      */
     protected function getExplicitStability($version)
@@ -115,7 +106,8 @@ class StabilityFlags
     /**
      * Split a version specification into a list of version constraints.
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return array
      */
     protected function splitConstraints($version)
@@ -137,7 +129,8 @@ class StabilityFlags
     /**
      * Get the stability of a version
      *
-     * @param string $version
+     * @param  string  $version
+     *
      * @return int|null Stability or null if STABLE or less than minimum
      */
     protected function getParsedStability($version)
@@ -162,7 +155,8 @@ class StabilityFlags
     /**
      * Get the current stability of a given package.
      *
-     * @param string $name
+     * @param  string  $name
+     *
      * @return int|null Stability of null if not set
      */
     protected function getCurrentStability($name)

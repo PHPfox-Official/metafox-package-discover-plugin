@@ -1,12 +1,4 @@
 <?php
-/**
- * This file is part of the Composer Merge plugin.
- *
- * Copyright (C) 2015 Bryan Davis, Wikimedia Foundation, and contributors
- *
- * This software may be modified and distributed under the terms of the MIT
- * license. See the LICENSE file for details.
- */
 
 namespace Fox5\PackageBundlerPlugin;
 
@@ -19,6 +11,7 @@ use Composer\Installer;
 use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
+use Composer\Json\JsonFile;
 use Composer\Package\RootPackageInterface;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
@@ -42,6 +35,11 @@ class Bundler implements PluginInterface, EventSubscriberInterface
      * @var Composer $composer
      */
     protected $composer;
+
+    /**
+     * @var FoxsocialConfiguration
+     */
+    protected $configuration;
 
     /**
      * @var PluginState $state
@@ -79,10 +77,11 @@ class Bundler implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
+        $this->configuration = new FoxsocialConfiguration();
         $this->composer = $composer;
         $this->state = new PluginState($this->composer);
         $this->logger = new Logger('package-bundler-plugin', $io);
-        $this->logger->info('<message>Collect Package</message>');
+        $this->logger->debug('<comment>Collect Package</comment>');
     }
 
     /**
@@ -169,6 +168,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
             if (isset($flags['optimize'])) {
                 $this->state->setOptimizeAutoloader($flags['optimize']);
             }
+            $this->logger->debug('<info>::onInstallUpdateOrDump</info>');
         }
     }
 
@@ -221,36 +221,58 @@ class Bundler implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        $package = new ExtraPackage($path, $this->composer, $this->logger);
+        try {
+            $file = new JsonFile($path);
+            $json = $file->read();
 
-        if (isset($this->loadedNoDev[$path])) {
-            $this->logger->info(
-                "Loading -dev sections of <comment>{$path}</comment>..."
-            );
-            $package->mergeDevInto($root, $this->state);
-        } else {
-            $this->logger->info("Loading <comment>{$path}</comment>...");
-            $package->mergeInto($root, $this->state);
+            if (!isset($json['name'])) {
+                throw new \InvalidArgumentException("$path missing package name");
+            }
+            if (!isset($json['version'])) {
+                $json['version'] = '1.0.0';
+            }
+            if (!isset($json['extra']['fox5'])) {
+                throw new \InvalidArgumentException("$path missing extra.fox5 info");
+            }
+            if (!isset($json['extra']['fox5']['namespace'])) {
+                throw new \InvalidArgumentException("$path missing fox5 extra info");
+            }
+            $package = new ExtraPackage($path, $json, $this->composer, $this->logger);
+
+            $package->mergeIntoFoxsocialConfiguration($this->configuration);
+
+            if (isset($this->loadedNoDev[$path])) {
+                $this->logger->info(
+                    "Loading -dev sections of <comment>{$path}</comment>..."
+                );
+                $package->mergeDevInto($root, $this->state);
+            } else {
+                $this->logger->info("Loading <comment>{$path}</comment>...");
+                $package->mergeInto($root, $this->state);
+            }
+
+            $requirements = $package->getMergedRequirements();
+            if (!empty($requirements)) {
+                $this->updateAllowList = array_replace(
+                    $this->updateAllowList,
+                    array_fill_keys($requirements, true)
+                );
+            }
+
+            if ($this->state->isDevMode()) {
+                $this->loaded[$path] = true;
+            } else {
+                $this->loadedNoDev[$path] = true;
+            }
+
+            if ($this->state->recurseIncludes()) {
+                $this->mergeFiles($package->getIncludes(), false);
+                $this->mergeFiles($package->getRequires(), true);
+            }
+        } catch (\Exception $exception) {
+            echo $exception->getMessage(), PHP_EOL;
         }
 
-        $requirements = $package->getMergedRequirements();
-        if (!empty($requirements)) {
-            $this->updateAllowList = array_replace(
-                $this->updateAllowList,
-                array_fill_keys($requirements, true)
-            );
-        }
-
-        if ($this->state->isDevMode()) {
-            $this->loaded[$path] = true;
-        } else {
-            $this->loadedNoDev[$path] = true;
-        }
-
-        if ($this->state->recurseIncludes()) {
-            $this->mergeFiles($package->getIncludes(), false);
-            $this->mergeFiles($package->getRequires(), true);
-        }
     }
 
     /**
@@ -330,6 +352,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
                 file_put_contents($lock, $lockBackup);
             }
         }
+        $this->configuration->writeToConfigFile();
         // @codeCoverageIgnoreEnd
     }
 }

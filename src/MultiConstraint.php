@@ -1,24 +1,11 @@
 <?php
 
-/**
- * This file is part of the Composer Merge plugin.
- *
- * Copyright (C) 2021 Bryan Davis, Wikimedia Foundation, and contributors
- *
- * This software may be modified and distributed under the terms of the MIT
- * license. See the LICENSE file for details.
- */
 
 namespace Fox5\PackageBundlerPlugin;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\MultiConstraint as SemverMultiConstraint;
 
-/**
- * Adapted from Composer's v2 MultiConstraint::create for Composer v1
- * @link https://github.com/composer/semver/blob/3.2.4/src/Constraint/MultiConstraint.php
- * @author Chauncey McAskill <chauncey@mcaskill.ca>
- */
 class MultiConstraint extends SemverMultiConstraint
 {
     /**

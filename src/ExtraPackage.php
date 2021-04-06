@@ -1,17 +1,8 @@
 <?php
-/**
- * This file is part of the Composer Merge plugin.
- *
- * Copyright (C) 2015 Bryan Davis, Wikimedia Foundation, and contributors
- *
- * This software may be modified and distributed under the terms of the MIT
- * license. See the LICENSE file for details.
- */
 
 namespace Fox5\PackageBundlerPlugin;
 
 use Composer\Composer;
-use Composer\Json\JsonFile;
 use Composer\Package\BasePackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\Link;
@@ -24,10 +15,8 @@ use Composer\Semver\Intervals;
 use UnexpectedValueException;
 
 /**
- * Processing for a composer.json file that will be merged into
- * a RootPackageInterface
- *
- * @author Bryan Davis <bd808@bd808.com>
+ * Class ExtraPackage
+ * @package Fox5\PackageBundlerPlugin
  */
 class ExtraPackage
 {
@@ -68,16 +57,17 @@ class ExtraPackage
     protected $versionParser;
 
     /**
-     * @param string $path Path to composer.json file
-     * @param Composer $composer
-     * @param Logger $logger
+     * @param  string    $path  Path to composer.json file
+     * @param  array     $json
+     * @param  Composer  $composer
+     * @param  Logger    $logger
      */
-    public function __construct($path, Composer $composer, Logger $logger)
+    public function __construct($path, array $json, Composer $composer, Logger $logger)
     {
         $this->path = $path;
         $this->composer = $composer;
         $this->logger = $logger;
-        $this->json = $this->readPackageJson($path);
+        $this->json = $this->readPackageJson($json);
         $this->package = $this->loadPackage($this->json);
         $this->versionParser = new VersionParser();
     }
@@ -89,7 +79,33 @@ class ExtraPackage
      */
     public function getIncludes()
     {
-        return $this->json['extra']['package-bundler-plugin']['include'] ?? [];
+        return [];
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->json['name'];
+    }
+
+    public function getFoxsocialConfig()
+    {
+        return [
+            'name'      => $this->json['name'],
+            'namespace' => $this->json['extra']['fox5']['namespace'] ?? 'Modules\\Example',
+            'core'      => isset($this->json['extra']['fox5']['core']) ? (bool) $this->json['extra']['fox5']['core'] : false,
+            'priority'  => isset($this->json['extra']['fox5']['priority']) ? (int) $this->json['extra']['fox5']['priority'] : 99,
+            'providers' => $this->json['extra']['fox5']['providers'] ?? [],
+            'aliases'   => $this->json['extra']['fox5']['aliases'] ?? [],
+            'version'   => $this->json['version'],
+        ];
+    }
+
+    public function mergeIntoFoxsocialConfiguration(FoxsocialConfiguration $config)
+    {
+        $config->addConfig($this->getFoxsocialConfig());
     }
 
     /**
@@ -99,7 +115,7 @@ class ExtraPackage
      */
     public function getRequires()
     {
-        return $this->json['extra']['package-bundler-plugin']['require'] ?? [];
+        return [];
     }
 
     /**
@@ -120,25 +136,18 @@ class ExtraPackage
      * been provided in the file. This is consistent with the default root
      * package loading behavior of Composer.
      *
-     * @param string $path
+     * @param  array  $json
+     *
      * @return array
      */
-    protected function readPackageJson($path)
+    protected function readPackageJson($json): array
     {
-        $file = new JsonFile($path);
-        $json = $file->read();
-        if (!isset($json['name'])) {
-            $json['name'] = 'package-bundler-plugin/' .
-                strtr($path, DIRECTORY_SEPARATOR, '-');
-        }
-        if (!isset($json['version'])) {
-            $json['version'] = '1.0.0';
-        }
         return $json;
     }
 
     /**
-     * @param array $json
+     * @param  array  $json
+     *
      * @return CompletePackage
      */
     protected function loadPackage(array $json)
@@ -148,7 +157,7 @@ class ExtraPackage
         // @codeCoverageIgnoreStart
         if (!$package instanceof CompletePackage) {
             throw new UnexpectedValueException(
-                'Expected instance of CompletePackage, got ' .
+                'Expected instance of CompletePackage, got '.
                 get_class($package)
             );
         }
@@ -159,8 +168,8 @@ class ExtraPackage
     /**
      * Merge this package into a RootPackageInterface
      *
-     * @param RootPackageInterface $root
-     * @param PluginState $state
+     * @param  RootPackageInterface  $root
+     * @param  PluginState           $state
      */
     public function mergeInto(RootPackageInterface $root, PluginState $state)
     {
@@ -190,8 +199,8 @@ class ExtraPackage
     /**
      * Merge just the dev portion into a RootPackageInterface
      *
-     * @param RootPackageInterface $root
-     * @param PluginState $state
+     * @param  RootPackageInterface  $root
+     * @param  PluginState           $state
      */
     public function mergeDevInto(RootPackageInterface $root, PluginState $state)
     {
@@ -204,7 +213,7 @@ class ExtraPackage
      * Add a collection of repositories described by the given configuration
      * to the given package and the global repository manager.
      *
-     * @param RootPackageInterface $root
+     * @param  RootPackageInterface  $root
      */
     protected function prependRepositories(RootPackageInterface $root)
     {
@@ -237,9 +246,9 @@ class ExtraPackage
     /**
      * Merge require or require-dev into a RootPackageInterface
      *
-     * @param string $type 'require' or 'require-dev'
-     * @param RootPackageInterface $root
-     * @param PluginState $state
+     * @param  string                $type  'require' or 'require-dev'
+     * @param  RootPackageInterface  $root
+     * @param  PluginState           $state
      */
     protected function mergeRequires(
         $type,
@@ -247,8 +256,8 @@ class ExtraPackage
         PluginState $state
     ) {
         $linkType = BasePackage::$supportedLinkTypes[$type];
-        $getter = 'get' . ucfirst($linkType['method']);
-        $setter = 'set' . ucfirst($linkType['method']);
+        $getter = 'get'.ucfirst($linkType['method']);
+        $setter = 'set'.ucfirst($linkType['method']);
 
         $requires = $this->package->{$getter}();
         if (empty($requires)) {
@@ -275,10 +284,11 @@ class ExtraPackage
      * Merge two collections of package links and collect duplicates for
      * subsequent processing.
      *
-     * @param string $type 'require' or 'require-dev'
-     * @param array $origin Primary collection
-     * @param array $merge Additional collection
-     * @param PluginState $state
+     * @param  string       $type    'require' or 'require-dev'
+     * @param  array        $origin  Primary collection
+     * @param  array        $merge   Additional collection
+     * @param  PluginState  $state
+     *
      * @return array Merged collection
      */
     protected function mergeOrDefer(
@@ -325,9 +335,10 @@ class ExtraPackage
      *
      * Adapted from Composer's UpdateCommand::appendConstraintToLink
      *
-     * @param Link $origin The base package link.
-     * @param Link $merge  The related package link to merge.
-     * @param PluginState $state
+     * @param  Link         $origin  The base package link.
+     * @param  Link         $merge   The related package link to merge.
+     * @param  PluginState  $state
+     *
      * @return Link Merged link.
      */
     protected function mergeConstraints(Link $origin, Link $merge, PluginState $state)
@@ -347,7 +358,7 @@ class ExtraPackage
 
         $newConstraint = $constraintClass::create([
             $origin->getConstraint(),
-            $merge->getConstraint()
+            $merge->getConstraint(),
         ], true);
         $newConstraint->setPrettyString($oldPrettyString.', '.$newPrettyString);
 
@@ -356,20 +367,20 @@ class ExtraPackage
             $origin->getTarget(),
             $newConstraint,
             $origin->getDescription(),
-            $origin->getPrettyConstraint() . ', ' . $newPrettyString
+            $origin->getPrettyConstraint().', '.$newPrettyString
         );
     }
 
     /**
      * Merge autoload or autoload-dev into a RootPackageInterface
      *
-     * @param string $type 'autoload' or 'devAutoload'
-     * @param RootPackageInterface $root
+     * @param  string                $type  'autoload' or 'devAutoload'
+     * @param  RootPackageInterface  $root
      */
     protected function mergeAutoload($type, RootPackageInterface $root)
     {
-        $getter = 'get' . ucfirst($type);
-        $setter = 'set' . ucfirst($type);
+        $getter = 'get'.ucfirst($type);
+        $setter = 'set'.ucfirst($type);
 
         $autoload = $this->package->{$getter}();
         if (empty($autoload)) {
@@ -387,7 +398,8 @@ class ExtraPackage
      * Fix a collection of paths that are relative to this package to be
      * relative to the base package.
      *
-     * @param array $paths
+     * @param  array  $paths
+     *
      * @return array
      */
     protected function fixRelativePaths(array $paths)
@@ -408,8 +420,8 @@ class ExtraPackage
      * Extract and merge stability flags from the given collection of
      * requires and merge them into a RootPackageInterface
      *
-     * @param RootPackageInterface $root
-     * @param array $requires
+     * @param  RootPackageInterface  $root
+     * @param  array                 $requires
      */
     protected function mergeStabilityFlags(
         RootPackageInterface $root,
@@ -428,14 +440,14 @@ class ExtraPackage
     /**
      * Merge package links of the given type  into a RootPackageInterface
      *
-     * @param string $type 'conflict', 'replace' or 'provide'
-     * @param RootPackageInterface $root
+     * @param  string                $type  'conflict', 'replace' or 'provide'
+     * @param  RootPackageInterface  $root
      */
     protected function mergePackageLinks($type, RootPackageInterface $root)
     {
         $linkType = BasePackage::$supportedLinkTypes[$type];
-        $getter = 'get' . ucfirst($linkType['method']);
-        $setter = 'set' . ucfirst($linkType['method']);
+        $getter = 'get'.ucfirst($linkType['method']);
+        $setter = 'set'.ucfirst($linkType['method']);
 
         $links = $this->package->{$getter}();
         if (!empty($links)) {
@@ -443,7 +455,7 @@ class ExtraPackage
             // @codeCoverageIgnoreStart
             if ($root !== $unwrapped) {
                 $this->logger->warning(
-                    'This Composer version does not support ' .
+                    'This Composer version does not support '.
                     "'{$type}' merging for aliased packages."
                 );
             }
@@ -458,7 +470,7 @@ class ExtraPackage
     /**
      * Merge suggested packages into a RootPackageInterface
      *
-     * @param RootPackageInterface $root
+     * @param  RootPackageInterface  $root
      */
     protected function mergeSuggests(RootPackageInterface $root)
     {
@@ -475,8 +487,8 @@ class ExtraPackage
     /**
      * Merge extra config into a RootPackageInterface
      *
-     * @param RootPackageInterface $root
-     * @param PluginState $state
+     * @param  RootPackageInterface  $root
+     * @param  PluginState           $state
      */
     public function mergeExtra(RootPackageInterface $root, PluginState $state)
     {
@@ -496,9 +508,9 @@ class ExtraPackage
         } else {
             if (!$state->shouldMergeExtraDeep()) {
                 foreach (array_intersect(
-                    array_keys($extra),
-                    array_keys($rootExtra)
-                ) as $key) {
+                             array_keys($extra),
+                             array_keys($rootExtra)
+                         ) as $key) {
                     $this->logger->info(
                         "Ignoring duplicate <comment>{$key}</comment> in ".
                         "<comment>{$this->path}</comment> extra config."
@@ -514,8 +526,8 @@ class ExtraPackage
     /**
      * Merge scripts config into a RootPackageInterface
      *
-     * @param RootPackageInterface $root
-     * @param PluginState $state
+     * @param  RootPackageInterface  $root
+     * @param  PluginState           $state
      */
     public function mergeScripts(RootPackageInterface $root, PluginState $state)
     {
@@ -541,9 +553,10 @@ class ExtraPackage
     /**
      * Merges two arrays either via arrayMergeDeep or via array_merge.
      *
-     * @param bool $mergeDeep
-     * @param array $array1
-     * @param array $array2
+     * @param  bool   $mergeDeep
+     * @param  array  $array1
+     * @param  array  $array2
+     *
      * @return array
      */
     public static function mergeExtraArray($mergeDeep, $array1, $array2)
@@ -559,9 +572,10 @@ class ExtraPackage
      * Update Links with a 'self.version' constraint with the root package's
      * version.
      *
-     * @param string $type Link type
-     * @param array $links
-     * @param RootPackageInterface $root
+     * @param  string                $type  Link type
+     * @param  array                 $links
+     * @param  RootPackageInterface  $root
+     *
      * @return array
      */
     protected function replaceSelfVersionDependencies(
@@ -574,7 +588,7 @@ class ExtraPackage
         $prettyVersion = $root->getPrettyVersion();
         $vp = $this->versionParser;
 
-        $method = 'get' . ucfirst($linkType['method']);
+        $method = 'get'.ucfirst($linkType['method']);
         $packages = $root->$method();
 
         return array_map(
@@ -619,8 +633,9 @@ class ExtraPackage
      * We have no way to actually modify those collections unfortunately in
      * older versions of Composer.
      *
-     * @param RootPackageInterface $root
-     * @param string $method Method needed
+     * @param  RootPackageInterface  $root
+     * @param  string                $method  Method needed
+     *
      * @return RootPackageInterface|RootPackage
      */
     public static function unwrapIfNeeded(
@@ -641,7 +656,7 @@ class ExtraPackage
     /**
      * Update the root packages reference information.
      *
-     * @param RootPackageInterface $root
+     * @param  RootPackageInterface  $root
      */
     protected function mergeReferences(RootPackageInterface $root)
     {
@@ -664,8 +679,9 @@ class ExtraPackage
     /**
      * Extract vcs revision from version constraint (dev-master#abc123.
      *
-     * @param array $requires
-     * @param array $references
+     * @param  array  $requires
+     * @param  array  $references
+     *
      * @return array
      * @see RootPackageLoader::extractReferences()
      */

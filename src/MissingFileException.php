@@ -1,17 +1,10 @@
 <?php
-/**
- * This file is part of the Composer Merge plugin.
- *
- * Copyright (C) 2015 Bryan Davis, Wikimedia Foundation, and contributors
- *
- * This software may be modified and distributed under the terms of the MIT
- * license. See the LICENSE file for details.
- */
 
 namespace Fox5\PackageBundlerPlugin;
 
 /**
- * @author Bryan Davis <bd808@bd808.com>
+ * Class MissingFileException
+ * @package Fox5\PackageBundlerPlugin
  */
 class MissingFileException extends \RuntimeException
 {

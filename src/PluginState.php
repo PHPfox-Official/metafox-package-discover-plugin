@@ -1,22 +1,11 @@
 <?php
-/**
- * This file is part of the Composer Merge plugin.
- *
- * Copyright (C) 2015 Bryan Davis, Wikimedia Foundation, and contributors
- *
- * This software may be modified and distributed under the terms of the MIT
- * license. See the LICENSE file for details.
- */
+
 
 namespace Fox5\PackageBundlerPlugin;
 
 use Composer\Composer;
 
-/**
- * Mutable plugin state
- *
- * @author Bryan Davis <bd808@bd808.com>
- */
+
 class PluginState
 {
     /**
@@ -120,7 +109,7 @@ class PluginState
     protected $optimizeAutoloader = false;
 
     /**
-     * @param Composer $composer
+     * @param  Composer  $composer
      */
     public function __construct(Composer $composer)
     {
@@ -133,33 +122,19 @@ class PluginState
      */
     public function loadSettings()
     {
-        $extra = $this->composer->getPackage()->getExtra();
-        $config = array_merge(
-            [
-                'include' => [],
-                'require' => [],
-                'recurse' => true,
-                'replace' => false,
-                'ignore-duplicates' => false,
-                'merge-dev' => true,
-                'merge-extra' => false,
-                'merge-extra-deep' => false,
-                'merge-scripts' => false,
-            ],
-            $extra['package-bundler-plugin'] ?? []
-        );
+        $this->includes = [
 
-        $this->includes = (is_array($config['include'])) ?
-            $config['include'] : [$config['include']];
-        $this->requires = (is_array($config['require'])) ?
-            $config['require'] : [$config['require']];
-        $this->recurse = (bool)$config['recurse'];
-        $this->replace = (bool)$config['replace'];
-        $this->ignore = (bool)$config['ignore-duplicates'];
-        $this->mergeDev = (bool)$config['merge-dev'];
-        $this->mergeExtra = (bool)$config['merge-extra'];
-        $this->mergeExtraDeep = (bool)$config['merge-extra-deep'];
-        $this->mergeScripts = (bool)$config['merge-scripts'];
+        ];
+        $this->requires = [
+            'modules/*/composer.json',
+        ];
+        $this->recurse = false;
+        $this->ignore = true;
+        $this->replace = false;
+        $this->mergeDev = true;
+        $this->mergeExtra = false;
+        $this->mergeExtraDeep = false;
+        $this->mergeScripts = false;
     }
 
     /**
@@ -185,11 +160,11 @@ class PluginState
     /**
      * Set the first install flag
      *
-     * @param bool $flag
+     * @param  bool  $flag
      */
     public function setFirstInstall($flag)
     {
-        $this->firstInstall = (bool)$flag;
+        $this->firstInstall = (bool) $flag;
     }
 
     /**
@@ -205,11 +180,11 @@ class PluginState
     /**
      * Set the locked flag
      *
-     * @param mixed $flag
+     * @param  mixed  $flag
      */
     public function setLocked($flag)
     {
-        $this->locked = (bool)$flag;
+        $this->locked = (bool) $flag;
     }
 
     /**
@@ -235,11 +210,11 @@ class PluginState
     /**
      * Set the devMode flag
      *
-     * @param mixed $flag
+     * @param  mixed  $flag
      */
     public function setDevMode($flag)
     {
-        $this->devMode = (bool)$flag;
+        $this->devMode = (bool) $flag;
     }
 
     /**
@@ -265,11 +240,11 @@ class PluginState
     /**
      * Set the dumpAutoloader flag
      *
-     * @param bool $flag
+     * @param  bool  $flag
      */
     public function setDumpAutoloader($flag)
     {
-        $this->dumpAutoloader = (bool)$flag;
+        $this->dumpAutoloader = (bool) $flag;
     }
 
     /**
@@ -285,11 +260,11 @@ class PluginState
     /**
      * Set the optimizeAutoloader flag
      *
-     * @param mixed $flag
+     * @param  mixed  $flag
      */
     public function setOptimizeAutoloader($flag)
     {
-        $this->optimizeAutoloader = (bool)$flag;
+        $this->optimizeAutoloader = (bool) $flag;
     }
 
     /**
