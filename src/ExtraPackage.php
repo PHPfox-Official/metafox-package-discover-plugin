@@ -1,6 +1,6 @@
 <?php
 
-namespace Fox5\PackageBundlerPlugin;
+namespace FoxSocial\PackageBundlerPlugin;
 
 use Composer\Composer;
 use Composer\Package\BasePackage;
@@ -16,7 +16,7 @@ use UnexpectedValueException;
 
 /**
  * Class ExtraPackage
- * @package Fox5\PackageBundlerPlugin
+ * @package foxsocial\PackageBundlerPlugin
  */
 class ExtraPackage
 {
@@ -90,22 +90,23 @@ class ExtraPackage
         return $this->json['name'];
     }
 
-    public function getFoxsocialConfig()
+    public function getFoxsocialConfig($path)
     {
-        return [
-            'name'      => $this->json['name'],
-            'namespace' => $this->json['extra']['fox5']['namespace'] ?? 'Modules\\Example',
-            'core'      => isset($this->json['extra']['fox5']['core']) ? (bool) $this->json['extra']['fox5']['core'] : false,
-            'priority'  => isset($this->json['extra']['fox5']['priority']) ? (int) $this->json['extra']['fox5']['priority'] : 99,
-            'providers' => $this->json['extra']['fox5']['providers'] ?? [],
-            'aliases'   => $this->json['extra']['fox5']['aliases'] ?? [],
-            'version'   => $this->json['version'],
-        ];
-    }
+        $extra = $this->json['extra']['foxsocial'];
 
-    public function mergeIntoFoxsocialConfiguration(FoxsocialConfiguration $config)
-    {
-        $config->addConfig($this->getFoxsocialConfig());
+        return [
+            'name'       => $this->json['name'],
+            'path'       => dirname($path),
+            'namespace'  => $extra['namespace'],
+            'version'    => $this->json['version'],
+            'nameAlias'  => $extra['nameAlias'],
+            'nameStudly' => $extra['nameStudly'],
+            'core'       => (bool) ($extra['core'] ?? false),
+            'priority'   => (int) ($extra['priority'] ?? 99),
+            'providers'  => $extra['providers'] ?? [],
+            'aliases'    => $extra['aliases'] ?? [],
+
+        ];
     }
 
     /**

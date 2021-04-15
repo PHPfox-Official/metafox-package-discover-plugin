@@ -1,7 +1,7 @@
 {
-    "name": "fox5/package-bundler-plugin",
+    "name": "foxsocial/package-bundler-plugin",
     "type": "composer-plugin",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "description": "Bundle multiple packages into root package",
     "require": {
         "php": ">=7.2.0",
@@ -11,16 +11,17 @@
         "composer/composer": "^2.0"
     },
     "autoload": {
+        "files": ["helpers.php"],
         "psr-4": {
-            "Fox5\\PackageBundlerPlugin\\": "src/"
+            "FoxSocial\\PackageBundlerPlugin\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Fox5\\PackageBundlerPlugin\\Tests\\": "tests/"
+            "FoxSocial\\PackageBundlerPlugin\\Tests\\": "tests/"
         }
     },
     "extra": {
-        "class": "Fox5\\PackageBundlerPlugin\\Bundler"
+        "class": "FoxSocial\\PackageBundlerPlugin\\Bundler"
     }
 }

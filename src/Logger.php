@@ -1,13 +1,13 @@
 <?php
 
 
-namespace Fox5\PackageBundlerPlugin;
+namespace FoxSocial\PackageBundlerPlugin;
 
 use Composer\IO\IOInterface;
 
 /**
  * Class Logger
- * @package Fox5\PackageBundlerPlugin
+ * @package FoxSocial\PackageBundlerPlugin
  */
 class Logger
 {

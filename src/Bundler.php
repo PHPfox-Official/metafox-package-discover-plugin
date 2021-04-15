@@ -1,6 +1,6 @@
 <?php
 
-namespace Fox5\PackageBundlerPlugin;
+namespace FoxSocial\PackageBundlerPlugin;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
@@ -24,7 +24,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
     /**
      * Official package name
      */
-    public const PACKAGE_NAME = 'fox5/package-bundler-plugin';
+    public const PACKAGE_NAME = 'foxsocial/package-bundler-plugin';
 
     /**
      * Priority that plugin uses to register callbacks.
@@ -36,10 +36,6 @@ class Bundler implements PluginInterface, EventSubscriberInterface
      */
     protected $composer;
 
-    /**
-     * @var FoxsocialConfiguration
-     */
-    protected $configuration;
 
     /**
      * @var PluginState $state
@@ -77,7 +73,6 @@ class Bundler implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        $this->configuration = new FoxsocialConfiguration();
         $this->composer = $composer;
         $this->state = new PluginState($this->composer);
         $this->logger = new Logger('package-bundler-plugin', $io);
@@ -145,7 +140,6 @@ class Bundler implements PluginInterface, EventSubscriberInterface
         // the other events fire.
         $this->state->setDevMode(false);
         $this->mergeFiles($this->state->getIncludes(), false);
-        $this->mergeFiles($this->state->getRequires(), true);
     }
 
     /**
@@ -160,7 +154,6 @@ class Bundler implements PluginInterface, EventSubscriberInterface
         $this->state->loadSettings();
         $this->state->setDevMode($event->isDevMode());
         $this->mergeFiles($this->state->getIncludes(), false);
-        $this->mergeFiles($this->state->getRequires(), true);
 
         if ($event->getName() === ScriptEvents::PRE_AUTOLOAD_DUMP) {
             $this->state->setDumpAutoloader(true);
@@ -224,22 +217,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
         try {
             $file = new JsonFile($path);
             $json = $file->read();
-
-            if (!isset($json['name'])) {
-                throw new \InvalidArgumentException("$path missing package name");
-            }
-            if (!isset($json['version'])) {
-                $json['version'] = '1.0.0';
-            }
-            if (!isset($json['extra']['fox5'])) {
-                throw new \InvalidArgumentException("$path missing extra.fox5 info");
-            }
-            if (!isset($json['extra']['fox5']['namespace'])) {
-                throw new \InvalidArgumentException("$path missing fox5 extra info");
-            }
             $package = new ExtraPackage($path, $json, $this->composer, $this->logger);
-
-            $package->mergeIntoFoxsocialConfiguration($this->configuration);
 
             if (isset($this->loadedNoDev[$path])) {
                 $this->logger->info(
@@ -352,7 +330,9 @@ class Bundler implements PluginInterface, EventSubscriberInterface
                 file_put_contents($lock, $lockBackup);
             }
         }
-        $this->configuration->writeToConfigFile();
+
+        // check this method in helpers.
+        discover_foxsocial_packages(realpath(__DIR__.'/../../..'), null, true, 'config/foxsocial.php');
         // @codeCoverageIgnoreEnd
     }
 }

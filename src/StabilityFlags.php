@@ -1,6 +1,6 @@
 <?php
 
-namespace Fox5\PackageBundlerPlugin;
+namespace FoxSocial\PackageBundlerPlugin;
 
 use Composer\Package\BasePackage;
 use Composer\Package\Version\VersionParser;

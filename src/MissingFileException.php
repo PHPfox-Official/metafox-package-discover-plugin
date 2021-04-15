@@ -1,10 +1,10 @@
 <?php
 
-namespace Fox5\PackageBundlerPlugin;
+namespace FoxSocial\PackageBundlerPlugin;
 
 /**
  * Class MissingFileException
- * @package Fox5\PackageBundlerPlugin
+ * @package FoxSocial\PackageBundlerPlugin
  */
 class MissingFileException extends \RuntimeException
 {

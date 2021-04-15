@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Fox5\PackageBundlerPlugin;
+namespace FoxSocial\PackageBundlerPlugin;
 
 use Composer\Composer;
 
@@ -17,11 +17,6 @@ class PluginState
      * @var array $includes
      */
     protected $includes = [];
-
-    /**
-     * @var array $requires
-     */
-    protected $requires = [];
 
     /**
      * @var bool $devMode
@@ -123,11 +118,11 @@ class PluginState
     public function loadSettings()
     {
         $this->includes = [
-
-        ];
-        $this->requires = [
             'modules/*/composer.json',
+            'modules/*/*/composer.json',
+            'modules/*/*/*/composer.json',
         ];
+
         $this->recurse = false;
         $this->ignore = true;
         $this->replace = false;
@@ -147,15 +142,6 @@ class PluginState
         return $this->includes;
     }
 
-    /**
-     * Get list of filenames and/or glob patterns to require
-     *
-     * @return array
-     */
-    public function getRequires()
-    {
-        return $this->requires;
-    }
 
     /**
      * Set the first install flag
