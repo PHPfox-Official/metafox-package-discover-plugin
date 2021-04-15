@@ -173,8 +173,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     protected function mergeFiles()
     {
-        if(!function_exists('discover_foxsocial_packages')){
-            require_once __DIR__.'/../helpers.php';
+        if (!function_exists('discover_foxsocial_packages')) {
+            require_once __DIR__ . '/../helpers.php';
         }
 
         $root = $this->composer->getPackage();
@@ -317,8 +317,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
         }
 
-        // check this method in helpers.
-        discover_foxsocial_packages(getcwd());
-        // @codeCoverageIgnoreEnd
+        if (is_dir(getcwd() . DIRECTORY_SEPARATOR . 'config')){
+            discover_foxsocial_packages(getcwd(), true);
+        }
     }
 }
