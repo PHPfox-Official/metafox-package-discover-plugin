@@ -1,8 +1,9 @@
 {
     "name": "foxsocial/package-bundler-plugin",
     "type": "composer-plugin",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Bundle multiple packages into root package",
+    "license": "Apache-2.0",
     "require": {
         "php": ">=7.2.0",
         "composer-plugin-api": "^2.0"
