@@ -1,7 +1,7 @@
 {
     "name": "foxsocial/package-discover-plugin",
     "type": "composer-plugin",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Bundle multiple packages into root package",
     "keywords": ["foxsocial"],
     "license": "Apache-2.0",

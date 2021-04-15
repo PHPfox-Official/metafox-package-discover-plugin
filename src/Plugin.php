@@ -173,6 +173,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     protected function mergeFiles()
     {
+        if(!function_exists('discover_foxsocial_packages')){
+            require_once __DIR__.'/../helpers.php';
+        }
+
         $root = $this->composer->getPackage();
         $files = array_map(function ($package) {
             return sprintf('%s%s%s', $package['path'], DIRECTORY_SEPARATOR, 'composer.json');
