@@ -1,13 +1,19 @@
 {
-    "name": "foxsocial/package-bundler-plugin",
+    "name": "foxsocial/package-discover-plugin",
     "type": "composer-plugin",
-    "version": "1.0.4",
+    "version": "1.0.0",
     "description": "Bundle multiple packages into root package",
+    "keywords": ["foxsocial"],
     "license": "Apache-2.0",
+    "prefer-stable": true,
     "require": {
         "php": ">=7.2.0",
         "composer-plugin-api": "^2.0"
     },
+    "authors": [{
+        "name": "foxsocial",
+        "email": "dev@phpfox.com"
+    }],
     "require-dev": {
         "composer/composer": "^2.0"
     },
@@ -17,12 +23,7 @@
             "FoxSocial\\PackageBundlerPlugin\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "FoxSocial\\PackageBundlerPlugin\\Tests\\": "tests/"
-        }
-    },
     "extra": {
-        "class": "FoxSocial\\PackageBundlerPlugin\\Bundler"
+        "class": "FoxSocial\\PackageBundlerPlugin\\Plugin"
     }
 }

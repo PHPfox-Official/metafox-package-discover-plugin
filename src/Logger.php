@@ -7,6 +7,7 @@ use Composer\IO\IOInterface;
 
 /**
  * Class Logger
+ *
  * @package FoxSocial\PackageBundlerPlugin
  */
 class Logger
@@ -22,8 +23,8 @@ class Logger
     protected $inputOutput;
 
     /**
-     * @param  string       $name
-     * @param  IOInterface  $io
+     * @param string      $name
+     * @param IOInterface $io
      */
     public function __construct(string $name, IOInterface $io)
     {
@@ -37,7 +38,7 @@ class Logger
      * Messages will be output at the "very verbose" logging level (eg `-vv`
      * needed on the Composer command).
      *
-     * @param  string  $message
+     * @param string $message
      */
     public function debug(string $message)
     {
@@ -53,7 +54,7 @@ class Logger
      * Messages will be output at the "verbose" logging level (eg `-v` needed
      * on the Composer command).
      *
-     * @param  string  $message
+     * @param string $message
      */
     public function info(string $message)
     {
@@ -91,4 +92,3 @@ class Logger
         }
     }
 }
-// vim:sw=4:ts=4:sts=4:et:

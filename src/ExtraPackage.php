@@ -16,7 +16,7 @@ use UnexpectedValueException;
 
 /**
  * Class ExtraPackage
- * @package foxsocial\PackageBundlerPlugin
+ * @package FoxSocial\PackageBundlerPlugin
  */
 class ExtraPackage
 {
@@ -90,35 +90,6 @@ class ExtraPackage
         return $this->json['name'];
     }
 
-    public function getFoxsocialConfig($path)
-    {
-        $extra = $this->json['extra']['foxsocial'];
-
-        return [
-            'name'       => $this->json['name'],
-            'path'       => dirname($path),
-            'namespace'  => $extra['namespace'],
-            'version'    => $this->json['version'],
-            'nameAlias'  => $extra['nameAlias'],
-            'nameStudly' => $extra['nameStudly'],
-            'core'       => (bool) ($extra['core'] ?? false),
-            'priority'   => (int) ($extra['priority'] ?? 99),
-            'providers'  => $extra['providers'] ?? [],
-            'aliases'    => $extra['aliases'] ?? [],
-
-        ];
-    }
-
-    /**
-     * Get list of additional packages to require if precessing recursively.
-     *
-     * @return array
-     */
-    public function getRequires()
-    {
-        return [];
-    }
-
     /**
      * Get list of merged requirements from this package.
      *
@@ -185,8 +156,6 @@ class ExtraPackage
         $this->mergeSuggests($root);
 
         $this->mergeAutoload('autoload', $root);
-
-        $this->mergeExtra($root, $state);
 
         $this->mergeScripts($root, $state);
 
@@ -486,45 +455,6 @@ class ExtraPackage
     }
 
     /**
-     * Merge extra config into a RootPackageInterface
-     *
-     * @param  RootPackageInterface  $root
-     * @param  PluginState           $state
-     */
-    public function mergeExtra(RootPackageInterface $root, PluginState $state)
-    {
-        $extra = $this->package->getExtra();
-        unset($extra['package-bundler-plugin']);
-        if (!$state->shouldMergeExtra() || empty($extra)) {
-            return;
-        }
-
-        $rootExtra = $root->getExtra();
-        $unwrapped = self::unwrapIfNeeded($root, 'setExtra');
-
-        if ($state->replaceDuplicateLinks()) {
-            $unwrapped->setExtra(
-                self::mergeExtraArray($state->shouldMergeExtraDeep(), $rootExtra, $extra)
-            );
-        } else {
-            if (!$state->shouldMergeExtraDeep()) {
-                foreach (array_intersect(
-                             array_keys($extra),
-                             array_keys($rootExtra)
-                         ) as $key) {
-                    $this->logger->info(
-                        "Ignoring duplicate <comment>{$key}</comment> in ".
-                        "<comment>{$this->path}</comment> extra config."
-                    );
-                }
-            }
-            $unwrapped->setExtra(
-                self::mergeExtraArray($state->shouldMergeExtraDeep(), $extra, $rootExtra)
-            );
-        }
-    }
-
-    /**
      * Merge scripts config into a RootPackageInterface
      *
      * @param  RootPackageInterface  $root
@@ -551,23 +481,6 @@ class ExtraPackage
         }
     }
 
-    /**
-     * Merges two arrays either via arrayMergeDeep or via array_merge.
-     *
-     * @param  bool   $mergeDeep
-     * @param  array  $array1
-     * @param  array  $array2
-     *
-     * @return array
-     */
-    public static function mergeExtraArray($mergeDeep, $array1, $array2)
-    {
-        if ($mergeDeep) {
-            return NestedArray::mergeDeep($array1, $array2);
-        }
-
-        return array_merge($array1, $array2);
-    }
 
     /**
      * Update Links with a 'self.version' constraint with the root package's
@@ -623,16 +536,6 @@ class ExtraPackage
 
     /**
      * Get a full featured Package from a RootPackageInterface.
-     *
-     * In Composer versions before 599ad77 the RootPackageInterface only
-     * defines a sub-set of operations needed by package-bundler-plugin and
-     * RootAliasPackage only implemented those methods defined by the
-     * interface. Most of the unimplemented methods in RootAliasPackage can be
-     * worked around because the getter methods that are implemented proxy to
-     * the aliased package which we can modify by unwrapping. The exception
-     * being modifying the 'conflicts', 'provides' and 'replaces' collections.
-     * We have no way to actually modify those collections unfortunately in
-     * older versions of Composer.
      *
      * @param  RootPackageInterface  $root
      * @param  string                $method  Method needed
@@ -702,4 +605,3 @@ class ExtraPackage
         return $references;
     }
 }
-// vim:sw=4:ts=4:sts=4:et:

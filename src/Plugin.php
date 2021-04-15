@@ -17,14 +17,15 @@ use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event as ScriptEvent;
 use Composer\Script\ScriptEvents;
+use Exception;
 
-class Bundler implements PluginInterface, EventSubscriberInterface
+class Plugin implements PluginInterface, EventSubscriberInterface
 {
 
     /**
      * Official package name
      */
-    public const PACKAGE_NAME = 'foxsocial/package-bundler-plugin';
+    public const PACKAGE_NAME = 'foxsocial/package-discover-plugin';
 
     /**
      * Priority that plugin uses to register callbacks.
@@ -75,8 +76,8 @@ class Bundler implements PluginInterface, EventSubscriberInterface
     {
         $this->composer = $composer;
         $this->state = new PluginState($this->composer);
-        $this->logger = new Logger('package-bundler-plugin', $io);
-        $this->logger->debug('<comment>Collect Package</comment>');
+        $this->logger = new Logger('package-discover-plugin', $io);
+        $this->logger->debug('<comment>Discovering foxsocial</comment>');
     }
 
     /**
@@ -130,7 +131,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
     /**
      * Handle an event callback for initialization.
      *
-     * @param  BaseEvent  $event
+     * @param BaseEvent $event
      */
     public function onInit(BaseEvent $event)
     {
@@ -139,21 +140,21 @@ class Bundler implements PluginInterface, EventSubscriberInterface
         // so assume it is false. The dev section will be merged later when
         // the other events fire.
         $this->state->setDevMode(false);
-        $this->mergeFiles($this->state->getIncludes(), false);
+        $this->mergeFiles();
     }
 
     /**
      * Handle an event callback for an install, update or dump command by
-     * checking for "package-bundler-plugin" in the "extra" data and merging package
+     * checking for "@foxsocial/package-discover-plugin" in the "extra" data and merging package
      * contents if found.
      *
-     * @param  ScriptEvent  $event
+     * @param ScriptEvent $event
      */
     public function onInstallUpdateOrDump(ScriptEvent $event)
     {
         $this->state->loadSettings();
         $this->state->setDevMode($event->isDevMode());
-        $this->mergeFiles($this->state->getIncludes(), false);
+        $this->mergeFiles();
 
         if ($event->getName() === ScriptEvents::PRE_AUTOLOAD_DUMP) {
             $this->state->setDumpAutoloader(true);
@@ -169,41 +170,27 @@ class Bundler implements PluginInterface, EventSubscriberInterface
      * Find configuration files matching the configured glob patterns and
      * merge their contents with the master package.
      *
-     * @param  array  $patterns  List of files/glob patterns
-     * @param  bool   $required  Are the patterns required to match files?
-     *
-     * @throws MissingFileException when required and a pattern returns no
-     *      results
      */
-    protected function mergeFiles(array $patterns, $required = false)
+    protected function mergeFiles()
     {
         $root = $this->composer->getPackage();
+        $files = array_map(function ($package) {
+            return sprintf('%s%s%s', $package['path'], DIRECTORY_SEPARATOR, 'composer.json');
+        }, discover_foxsocial_packages(getcwd()));
 
-        $files = array_map(
-            static function ($files, $pattern) use ($required) {
-                if ($required && !$files) {
-                    throw new MissingFileException(
-                        "package-bundler-plugin: No files matched required '{$pattern}'"
-                    );
-                }
-                return $files;
-            },
-            array_map('glob', $patterns),
-            $patterns
-        );
 
-        foreach (array_reduce($files, 'array_merge', []) as $path) {
-            $this->mergeFile($root, $path);
+        foreach ($files as $file) {
+            $this->mergeFile($root, $file);
         }
     }
 
     /**
      * Read a JSON file and merge its contents
      *
-     * @param  RootPackageInterface  $root
-     * @param  string                $path
+     * @param RootPackageInterface $root
+     * @param string               $path
      */
-    protected function mergeFile(RootPackageInterface $root, $path)
+    protected function mergeFile(RootPackageInterface $root, string $path)
     {
         if (isset($this->loaded[$path]) ||
             (isset($this->loadedNoDev[$path]) && !$this->state->isDevMode())
@@ -242,13 +229,8 @@ class Bundler implements PluginInterface, EventSubscriberInterface
             } else {
                 $this->loadedNoDev[$path] = true;
             }
-
-            if ($this->state->recurseIncludes()) {
-                $this->mergeFiles($package->getIncludes(), false);
-                $this->mergeFiles($package->getRequires(), true);
-            }
-        } catch (\Exception $exception) {
-            echo $exception->getMessage(), PHP_EOL;
+        } catch (Exception $exception) {
+            $this->logger->warning($exception->getMessage());
         }
 
     }
@@ -257,7 +239,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
      * Handle an event callback following installation of a new package by
      * checking to see if the package that was installed was our plugin.
      *
-     * @param  PackageEvent  $event
+     * @param PackageEvent $event
      */
     public function onPostPackageInstall(PackageEvent $event)
     {
@@ -265,7 +247,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
         if ($op instanceof InstallOperation) {
             $package = $op->getPackage()->getName();
             if ($package === self::PACKAGE_NAME) {
-                $this->logger->info('package-bundler-plugin installed');
+                $this->logger->info('installed');
                 $this->state->setFirstInstall(true);
                 $this->state->setLocked(
                     $event->getComposer()->getLocker()->isLocked()
@@ -279,7 +261,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
      * plugin was installed during the run then trigger an update command to
      * process any merge-patterns in the current config.
      *
-     * @param  ScriptEvent  $event
+     * @param ScriptEvent $event
      */
     public function onPostInstallOrUpdate(ScriptEvent $event)
     {
@@ -292,7 +274,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
                 return;
             }
 
-            $this->logger->log("\n".'<info>Running composer update to apply merge settings</info>');
+            $this->logger->log("\n" . '<info>Running composer update to apply merge settings</info>');
 
             $lockBackup = null;
             $lock = null;
@@ -323,8 +305,8 @@ class Bundler implements PluginInterface, EventSubscriberInterface
             $status = $installer->run();
             if (($status !== 0) && $lockBackup && $lock) {
                 $this->logger->log(
-                    "\n".'<error>'.
-                    'Update to apply merge settings failed, reverting '.$lock.' to its original content.'.
+                    "\n" . '<error>' .
+                    'Update to apply merge settings failed, reverting ' . $lock . ' to its original content.' .
                     '</error>'
                 );
                 file_put_contents($lock, $lockBackup);
@@ -332,8 +314,7 @@ class Bundler implements PluginInterface, EventSubscriberInterface
         }
 
         // check this method in helpers.
-        discover_foxsocial_packages(realpath(__DIR__.'/../../..'), null, true, 'config/foxsocial.php');
+        discover_foxsocial_packages(getcwd());
         // @codeCoverageIgnoreEnd
     }
 }
-// vim:sw=4:ts=4:sts=4:et:

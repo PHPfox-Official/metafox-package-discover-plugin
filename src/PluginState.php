@@ -44,37 +44,6 @@ class PluginState
      */
     protected $mergeDev = true;
 
-    /**
-     * Whether to merge the extra section.
-     *
-     * By default, the extra section is not merged and there will be many
-     * cases where the merge of the extra section is performed too late
-     * to be of use to other plugins. When enabled, merging uses one of
-     * two strategies - either 'first wins' or 'last wins'. When enabled,
-     * 'first wins' is the default behaviour. If Replace mode is activated
-     * then 'last wins' is used.
-     *
-     * @var bool $mergeExtra
-     */
-    protected $mergeExtra = false;
-
-    /**
-     * Whether to merge the extra section in a deep / recursive way.
-     *
-     * By default the extra section is merged with array_merge() and duplicate
-     * keys are ignored. When enabled this allows to merge the arrays recursively
-     * using the following rule: Integer keys are merged, while array values are
-     * replaced where the later values overwrite the former.
-     *
-     * This is useful especially for the extra section when plugins use larger
-     * structures like a 'patches' key with the packages as sub-keys and the
-     * patches as values.
-     *
-     * When 'replace' mode is activated the order of array merges is exchanged.
-     *
-     * @var bool $mergeExtraDeep
-     */
-    protected $mergeExtraDeep = false;
 
     /**
      * Whether to merge the scripts section.
@@ -127,8 +96,6 @@ class PluginState
         $this->ignore = true;
         $this->replace = false;
         $this->mergeDev = true;
-        $this->mergeExtra = false;
-        $this->mergeExtraDeep = false;
         $this->mergeScripts = false;
     }
 
@@ -293,43 +260,6 @@ class PluginState
         return $this->ignore;
     }
 
-    /**
-     * Should the extra section be merged?
-     *
-     * By default, the extra section is not merged and there will be many
-     * cases where the merge of the extra section is performed too late
-     * to be of use to other plugins. When enabled, merging uses one of
-     * two strategies - either 'first wins' or 'last wins'. When enabled,
-     * 'first wins' is the default behaviour. If Replace mode is activated
-     * then 'last wins' is used.
-     *
-     * @return bool
-     */
-    public function shouldMergeExtra()
-    {
-        return $this->mergeExtra;
-    }
-
-    /**
-     * Should the extra section be merged deep / recursively?
-     *
-     * By default the extra section is merged with array_merge() and duplicate
-     * keys are ignored. When enabled this allows to merge the arrays recursively
-     * using the following rule: Integer keys are merged, while array values are
-     * replaced where the later values overwrite the former.
-     *
-     * This is useful especially for the extra section when plugins use larger
-     * structures like a 'patches' key with the packages as sub-keys and the
-     * patches as values.
-     *
-     * When 'replace' mode is activated the order of array merges is exchanged.
-     *
-     * @return bool
-     */
-    public function shouldMergeExtraDeep()
-    {
-        return $this->mergeExtraDeep;
-    }
 
     /**
      * Should the scripts section be merged?
@@ -343,4 +273,3 @@ class PluginState
         return $this->mergeScripts;
     }
 }
-// vim:sw=4:ts=4:sts=4:et:

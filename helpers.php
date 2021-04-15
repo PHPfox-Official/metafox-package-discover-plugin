@@ -1,29 +1,24 @@
 <?php
 
-if (!function_exists('discover_foxsocial_packages_patterns')) {
-    function discover_foxsocial_packages_patterns(): array
-    {
-        return [
-            'modules/*/composer.json',
-            'modules/*/*/composer.json',
-            'modules/*/*/*/composer.json',
-        ];
-    }
-}
 
 if (!function_exists('discover_foxsocial_packages')) {
     function discover_foxsocial_packages(
         string $basePath,
-        ?array $patterns = null,
         bool $writeToConfig = false,
-        ?string $configFilename = null
-    ): array {
+        ?string $configFilename = null,
+        ?array $patterns = null
+    ): array
+    {
         $files = [];
         $packageArray = [];
-        $patterns = $patterns ?? discover_foxsocial_packages_patterns();
+        $patterns = $patterns ?? [
+                'modules/*/composer.json',
+                'modules/*/*/composer.json',
+                'modules/*/*/*/composer.json',
+            ];
 
         array_walk($patterns, function ($pattern) use (&$files, $basePath) {
-            $dir = rtrim($basePath, DIRECTORY_SEPARATOR,).DIRECTORY_SEPARATOR.$pattern;
+            $dir = rtrim($basePath, DIRECTORY_SEPARATOR,) . DIRECTORY_SEPARATOR . $pattern;
             foreach (glob($dir) as $file) {
                 $files[] = $file;
             }
@@ -47,8 +42,8 @@ if (!function_exists('discover_foxsocial_packages')) {
 
                 $packageArray[] = [
                     'name'       => $data['name'],
-                    'core'       => (bool) ($extra['core'] ?? false),
-                    'priority'   => (int) ($extra['priority'] ?? 99),
+                    'core'       => (bool)($extra['core'] ?? false),
+                    'priority'   => (int)($extra['priority'] ?? 99),
                     'version'    => $data['version'],
                     'nameAlias'  => $extra['nameAlias'],
                     'nameStudly' => $extra['nameStudly'],
@@ -81,7 +76,7 @@ if (!function_exists('discover_foxsocial_packages')) {
         });
 
         if ($writeToConfig) {
-            $filename = $basePath.DIRECTORY_SEPARATOR.($configFilename ?? "config/foxsocial.php");
+            $filename = $basePath . DIRECTORY_SEPARATOR . ($configFilename ?? "config/foxsocial.php");
 
             /** @noinspection PhpIncludeInspection */
             $data = file_exists($filename) ? require $filename : [];
