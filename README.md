@@ -1,0 +1,1 @@
+# metafox-package-discover-plugin
