@@ -33,7 +33,7 @@ if (!function_exists('discover_metafox_packages')) {
                     return;
                 }
 
-                $extra = $data['extra']['foxsocial'];
+                $extra = $data['extra']['metafox'];
                 $namespace = $extra['namespace'] ?? $data['autoload']['psr-4'] ?? '';
 
                 if (is_array($namespace)) {
