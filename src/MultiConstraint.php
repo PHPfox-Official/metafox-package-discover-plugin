@@ -1,7 +1,7 @@
 <?php
 
 
-namespace FoxSocial\PackageBundlerPlugin;
+namespace MetaFox\PackageBundlerPlugin;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\MultiConstraint as SemverMultiConstraint;

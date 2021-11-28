@@ -1,6 +1,6 @@
 <?php
 
-namespace FoxSocial\PackageBundlerPlugin;
+namespace MetaFox\PackageBundlerPlugin;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;

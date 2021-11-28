@@ -1,6 +1,6 @@
 <?php
 
-namespace FoxSocial\PackageBundlerPlugin;
+namespace MetaFox\PackageBundlerPlugin;
 
 use Composer\Composer;
 use Composer\Package\BasePackage;
@@ -16,7 +16,7 @@ use UnexpectedValueException;
 
 /**
  * Class ExtraPackage
- * @package FoxSocial\PackageBundlerPlugin
+ * @package MetaFox\PackageBundlerPlugin
  */
 class ExtraPackage
 {

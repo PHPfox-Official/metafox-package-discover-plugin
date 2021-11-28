@@ -20,10 +20,10 @@
     "autoload": {
         "files": ["helpers.php"],
         "psr-4": {
-            "FoxSocial\\PackageBundlerPlugin\\": "src/"
+            "MetaFox\\PackageBundlerPlugin\\": "src/"
         }
     },
     "extra": {
-        "class": "FoxSocial\\PackageBundlerPlugin\\Plugin"
+        "class": "MetaFox\\PackageBundlerPlugin\\Plugin"
     }
 }
