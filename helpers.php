@@ -1,8 +1,8 @@
 <?php
 
 
-if (!function_exists('discover_foxsocial_packages')) {
-    function discover_foxsocial_packages(
+if (!function_exists('discover_metafox_packages')) {
+    function discover_metafox_packages(
         string $basePath,
         bool $writeToConfig = false,
         ?string $configFilename = null,
@@ -28,8 +28,8 @@ if (!function_exists('discover_foxsocial_packages')) {
             try {
                 $data = json_decode(file_get_contents($file), true);
                 if (!isset($data['extra']) ||
-                    !isset($data['extra']['foxsocial'])
-                    || !is_array($data['extra']['foxsocial'])) {
+                    !isset($data['extra']['metafox'])
+                    || !is_array($data['extra']['metafox'])) {
                     return;
                 }
 
@@ -76,7 +76,7 @@ if (!function_exists('discover_foxsocial_packages')) {
         });
 
         if ($writeToConfig) {
-            $filename = $basePath . DIRECTORY_SEPARATOR . ($configFilename ?? "config/foxsocial.php");
+            $filename = $basePath . DIRECTORY_SEPARATOR . ($configFilename ?? "config/metafox.php");
 
             /** @noinspection PhpIncludeInspection */
             $data = file_exists($filename) ? require $filename : [];
