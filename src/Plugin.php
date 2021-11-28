@@ -25,7 +25,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     /**
      * Official package name
      */
-    public const PACKAGE_NAME = 'foxsocial/package-discover-plugin';
+    public const PACKAGE_NAME = 'metafox/package-discover-plugin';
 
     /**
      * Priority that plugin uses to register callbacks.
@@ -77,7 +77,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->composer = $composer;
         $this->state = new PluginState($this->composer);
         $this->logger = new Logger('package-discover-plugin', $io);
-        $this->logger->debug('<comment>Discovering foxsocial</comment>');
+        $this->logger->debug('<comment>Discovering metafox</comment>');
     }
 
     /**
@@ -145,7 +145,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     /**
      * Handle an event callback for an install, update or dump command by
-     * checking for "@foxsocial/package-discover-plugin" in the "extra" data and merging package
+     * checking for "@metafox/package-discover-plugin" in the "extra" data and merging package
      * contents if found.
      *
      * @param ScriptEvent $event
@@ -173,14 +173,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     protected function mergeFiles()
     {
-        if (!function_exists('discover_foxsocial_packages')) {
+        if (!function_exists('discover_metafox_packages')) {
             require_once __DIR__ . '/../helpers.php';
         }
 
         $root = $this->composer->getPackage();
         $files = array_map(function ($package) {
             return sprintf('%s%s%s', $package['path'], DIRECTORY_SEPARATOR, 'composer.json');
-        }, discover_foxsocial_packages(getcwd()));
+        }, discover_metafox_packages(getcwd()));
 
 
         foreach ($files as $file) {
@@ -318,7 +318,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
 
         if (is_dir(getcwd() . DIRECTORY_SEPARATOR . 'config')){
-            discover_foxsocial_packages(getcwd(), true);
+            discover_metafox_packages(getcwd(), true);
         }
     }
 }

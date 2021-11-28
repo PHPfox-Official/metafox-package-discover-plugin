@@ -1,9 +1,9 @@
 {
-    "name": "foxsocial/package-discover-plugin",
+    "name": "metafox/package-discover-plugin",
     "type": "composer-plugin",
     "version": "1.0.9",
     "description": "Bundle multiple packages into root package",
-    "keywords": ["foxsocial"],
+    "keywords": ["metafox"],
     "license": "Apache-2.0",
     "prefer-stable": true,
     "require": {
@@ -11,7 +11,7 @@
         "composer-plugin-api": "^2.0"
     },
     "authors": [{
-        "name": "foxsocial",
+        "name": "metafox",
         "email": "dev@phpfox.com"
     }],
     "require-dev": {
