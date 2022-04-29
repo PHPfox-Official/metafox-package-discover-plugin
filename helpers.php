@@ -12,9 +12,9 @@ if (!function_exists('discover_metafox_packages')) {
         $files = [];
         $packageArray = [];
         $patterns = $patterns ?? [
-                'modules/*/composer.json',
-                'modules/*/*/composer.json',
-                'modules/*/*/*/composer.json',
+                'packages/*/composer.json',
+                'packages/*/*/composer.json',
+                'packages/*/*/*/composer.json',
             ];
 
         array_walk($patterns, function ($pattern) use (&$files, $basePath) {

@@ -87,9 +87,9 @@ class PluginState
     public function loadSettings()
     {
         $this->includes = [
-            'modules/*/composer.json',
-            'modules/*/*/composer.json',
-            'modules/*/*/*/composer.json',
+            'packages/*/composer.json',
+            'packages/*/*/composer.json',
+            'packages/*/*/*/composer.json',
         ];
 
         $this->recurse = false;
