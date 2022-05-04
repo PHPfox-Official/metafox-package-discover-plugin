@@ -46,7 +46,6 @@ if (!function_exists('discover_metafox_packages')) {
                     'priority'   => (int)($extra['priority'] ?? 99),
                     'version'    => $data['version'],
                     'nameAlias'  => $extra['nameAlias'],
-                    'nameStudly' => $extra['nameStudly'],
                     'namespace'  => trim($namespace, '\\'),
                     'path'       => trim(substr(dirname($file), strlen($basePath)), DIRECTORY_SEPARATOR),
                     'providers'  => $extra['providers'] ?? [],
