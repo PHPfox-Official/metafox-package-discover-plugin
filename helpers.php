@@ -7,8 +7,7 @@ if (!function_exists('discover_metafox_packages')) {
         bool $writeToConfig = false,
         ?string $configFilename = null,
         ?array $patterns = null
-    ): array
-    {
+    ): array {
         $files = [];
         $packageArray = [];
         $patterns = $patterns ?? [
@@ -18,7 +17,7 @@ if (!function_exists('discover_metafox_packages')) {
             ];
 
         array_walk($patterns, function ($pattern) use (&$files, $basePath) {
-            $dir = rtrim($basePath, DIRECTORY_SEPARATOR,) . DIRECTORY_SEPARATOR . $pattern;
+            $dir = rtrim($basePath, DIRECTORY_SEPARATOR,).DIRECTORY_SEPARATOR.$pattern;
             foreach (glob($dir) as $file) {
                 $files[] = $file;
             }
@@ -41,15 +40,16 @@ if (!function_exists('discover_metafox_packages')) {
                 }
 
                 $packageArray[] = [
-                    'name'       => $data['name'],
-                    'core'       => (bool)($extra['core'] ?? false),
-                    'priority'   => (int)($extra['priority'] ?? 99),
-                    'version'    => $data['version'],
-                    'nameAlias'  => $extra['nameAlias'],
-                    'namespace'  => trim($namespace, '\\'),
-                    'path'       => trim(substr(dirname($file), strlen($basePath)), DIRECTORY_SEPARATOR),
-                    'providers'  => $extra['providers'] ?? [],
-                    'aliases'    => $extra['aliases'] ?? [],
+                    'namespace' => trim($namespace, '\\'),
+                    'name'      => $data['name'],
+                    'alias'     => $extra['alias'],
+                    'core'      => (bool) ($extra['core'] ?? false),
+                    'priority'  => (int) ($extra['priority'] ?? 99),
+                    'version'   => $data['version'],
+                    'assets'    => isset($extra['assets']) ? $extra['assets'] : $extra['alias'],
+                    'path'      => trim(substr(dirname($file), strlen($basePath)), DIRECTORY_SEPARATOR),
+                    'providers' => $extra['providers'] ?? [],
+                    'aliases'   => $extra['aliases'] ?? [],
                 ];
             } catch (Exception $exception) {
                 echo $exception->getMessage(), PHP_EOL;
@@ -75,7 +75,7 @@ if (!function_exists('discover_metafox_packages')) {
         });
 
         if ($writeToConfig) {
-            $filename = $basePath . DIRECTORY_SEPARATOR . ($configFilename ?? "config/metafox.php");
+            $filename = $basePath.DIRECTORY_SEPARATOR.($configFilename ?? "config/metafox.php");
 
             /** @noinspection PhpIncludeInspection */
             $data = file_exists($filename) ? require $filename : [];
