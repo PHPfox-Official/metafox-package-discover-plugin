@@ -46,7 +46,7 @@ if (!function_exists('discover_metafox_packages')) {
                     'core'      => (bool) ($extra['core'] ?? false),
                     'priority'  => (int) ($extra['priority'] ?? 99),
                     'version'   => $data['version'],
-                    'assets'    => isset($extra['assets']) ? $extra['assets'] : $extra['alias'],
+                    'asset'     => isset($extra['asset']) ? $extra['asset'] : $extra['alias'],
                     'path'      => trim(substr(dirname($file), strlen($basePath)), DIRECTORY_SEPARATOR),
                     'providers' => $extra['providers'] ?? [],
                     'aliases'   => $extra['aliases'] ?? [],
