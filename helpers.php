@@ -43,6 +43,8 @@ if (!function_exists('discover_metafox_packages')) {
                     'namespace' => trim($namespace, '\\'),
                     'name'      => $data['name'],
                     'alias'     => $extra['alias'],
+                    'frontendAlias'=> $extra['frontendAlias'] ?? $extra['alias'],
+                    'mobileAlias'=> $extra['mobileAlias'] ?? $extra['alias'],
                     'core'      => (bool) ($extra['core'] ?? false),
                     'priority'  => (int) ($extra['priority'] ?? 99),
                     'version'   => $data['version'],
