@@ -52,6 +52,8 @@ if (!function_exists('discover_metafox_packages')) {
                     'path'      => trim(substr(dirname($file), strlen($basePath)), DIRECTORY_SEPARATOR),
                     'providers' => $extra['providers'] ?? [],
                     'aliases'   => $extra['aliases'] ?? [],
+                    'type'      => $extra['type'] ?? 'app',
+                    'category'  => $extra['category'] ?? null,
                 ];
             } catch (Exception $exception) {
                 echo $exception->getMessage(), PHP_EOL;
