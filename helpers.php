@@ -73,9 +73,11 @@ if (!function_exists('discover_metafox_packages')) {
         });
 
         $packages = [];
+        $aliases  = [];
         // export to keys value.
-        array_walk($packageArray, function ($item) use (&$packages) {
+        array_walk($packageArray, function ($item) use (&$packages, &$aliases) {
             $packages[$item['name']] = $item;
+            $aliases[$item['alias']] = $item['name'];
         });
 
         if ($writeToConfig) {
@@ -84,6 +86,7 @@ if (!function_exists('discover_metafox_packages')) {
             /** @noinspection PhpIncludeInspection */
             $data = file_exists($filename) ? require $filename : [];
             $data['packages'] = $packages;
+            $data['aliases'] = $aliases;
 
             if (false === file_put_contents($filename, sprintf('<?php return %s;', var_export($data, true)))) {
                 echo "Could not write to file $filename";
