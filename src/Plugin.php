@@ -17,6 +17,7 @@ use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event as ScriptEvent;
 use Composer\Script\ScriptEvents;
+use RecursiveIteratorIterator;
 use Exception;
 
 class Plugin implements PluginInterface, EventSubscriberInterface
@@ -166,6 +167,18 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
     }
 
+    protected function removeDir($dir){
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $fileinfo) {
+            $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
+            $todo($fileinfo->getRealPath());
+        }
+    }
+
     /**
      * Find configuration files matching the configured glob patterns and
      * merge their contents with the master package.
@@ -175,6 +188,27 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         if (!function_exists('discover_metafox_packages')) {
             require_once __DIR__ . '/../helpers.php';
+        }
+        $root = getcwd();
+        $composerJson = json_decode(file_get_contents($root."/composer.json"),true);
+
+        if(array_key_exists('migratePaths',$composerJson)){
+            $migratePaths =  $composerJson['migratePaths'];
+            foreach($migratePaths as $from=>$to){
+                $old = $root. '/'. $from;
+                if(is_dir($old)){
+                    if(!$to || is_dir($root. '/'.$to)){
+                        $this->logger->info("Remove directory ". $from);
+                        $this->removeDir($old);
+                    }else {
+                        $this->logger->info("Skip directory ". $from);
+                    }
+                }else if(is_file($old)){
+                    if(!$to || is_file($root. '/'.$to)){
+                        unlink($old);
+                    }
+                }
+            }
         }
 
         $root = $this->composer->getPackage();
@@ -209,14 +243,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $file = new JsonFile($path);
             $json = $file->read();
             $package = new ExtraPackage($path, $json, $this->composer, $this->logger);
+            $this->logger->info("Loading <comment>{$path}</comment>...");
 
             if (isset($this->loadedNoDev[$path])) {
-                $this->logger->info(
-                    "Loading -dev sections of <comment>{$path}</comment>..."
-                );
                 $package->mergeDevInto($root, $this->state);
             } else {
-                $this->logger->info("Loading <comment>{$path}</comment>...");
                 $package->mergeInto($root, $this->state);
             }
 
