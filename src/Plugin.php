@@ -18,6 +18,7 @@ use Composer\Plugin\PluginInterface;
 use Composer\Script\Event as ScriptEvent;
 use Composer\Script\ScriptEvents;
 use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use Exception;
 
 class Plugin implements PluginInterface, EventSubscriberInterface
