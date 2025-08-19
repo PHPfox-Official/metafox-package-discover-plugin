@@ -1,7 +1,7 @@
 {
     "name": "metafox/package-discover-plugin",
     "type": "composer-plugin",
-    "version": "1.5.8",
+    "version": "1.5.9",
     "description": "Bundle multiple packages into root package",
     "keywords": ["metafox"],
     "license": "Apache-2.0",
