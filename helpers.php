@@ -2,6 +2,16 @@
 
 
 if (!function_exists('discover_metafox_packages')) {
+
+
+    function discover_metafox_version(){
+        if(file_exists("packages/platform/src/MetaFoxConstant.php")){
+            require_once("packages/platform/src/MetaFoxConstant.php");
+        }
+        return \MetaFox\Platform\MetaFoxConstant::VERSION;
+    }
+
+
     function discover_metafox_packages(
         string $basePath,
         bool $writeToConfig = false,
@@ -23,7 +33,9 @@ if (!function_exists('discover_metafox_packages')) {
             }
         });
 
-        array_walk($files, function ($file) use (&$packageArray, $basePath) {
+        $current_core_version = discover_metafox_version();
+
+        array_walk($files, function ($file) use (&$packageArray, $basePath, $current_core_version) {
             try {
                 $data = json_decode(file_get_contents($file), true);
                 if (!isset($data['extra']) ||
@@ -37,6 +49,30 @@ if (!function_exists('discover_metafox_packages')) {
 
                 if (is_array($namespace)) {
                     $namespace = array_key_first($namespace);
+                }
+                $max_core_version = null;
+                $min_core_version = null;
+                $require_core_version = null;
+                if(array_key_exists('require',$extra) && array_key_exists('metafox/core', $extra['require'])) {
+                    $require_core_version  = $extra['require']['metafox/core'];
+                    if($require_core_version){
+                        $require_core_version_arr = explode('-', $require_core_version);
+                        if(count($require_core_version_arr)>1){
+                            $max_core_version = trim($require_core_version_arr[1]);
+                            $min_core_version = trim($require_core_version_arr[0]);
+                        } else {
+                            $max_core_version = trim($require_core_version_arr[0]);
+                            $min_core_version = trim($require_core_version_arr[0]);
+                        }
+                    }
+                }
+
+                if($require_core_version){
+                    if(version_compare($current_core_version, $max_core_version, '>') || version_compare($current_core_version, $min_core_version, '<')) {
+                        // disable package if not avaiable
+                        echo "Ignore Package {$data['name']} requires metafox/core:$require_core_version". PHP_EOL;
+                        return false;
+                    }
                 }
 
                 $packageArray[] = [
