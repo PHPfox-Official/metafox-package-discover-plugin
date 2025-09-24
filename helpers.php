@@ -68,7 +68,7 @@ if (!function_exists('discover_metafox_packages')) {
                 }
 
                 if($require_core_version){
-                    if(version_compare($current_core_version, $max_core_version, '>') || version_compare($current_core_version, $min_core_version, '<')) {
+                    if(version_compare($current_core_version, $max_core_version, '>=') || version_compare($current_core_version, $min_core_version, '<')) {
                         // disable package if not avaiable
                         echo "Ignore Package {$data['name']} requires metafox/core:$require_core_version". PHP_EOL;
                         return false;
