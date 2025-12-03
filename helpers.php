@@ -11,6 +11,14 @@ if (!function_exists('discover_metafox_packages')) {
         return \MetaFox\Platform\MetaFoxConstant::VERSION;
     }
 
+    function normalize_metafox_version($version)
+    {
+        // the fourth number typically indicates a critical patch and should be considered compatible
+        $parts = explode('.', $version);
+        $sliced = array_slice($parts, 0, 3);
+
+        return implode('.', $sliced);
+    }
 
     function discover_metafox_packages(
         string $basePath,
@@ -33,7 +41,7 @@ if (!function_exists('discover_metafox_packages')) {
             }
         });
 
-        $current_core_version = discover_metafox_version();
+        $current_core_version = normalize_metafox_version(discover_metafox_version());
 
         array_walk($files, function ($file) use (&$packageArray, $basePath, $current_core_version) {
             try {
